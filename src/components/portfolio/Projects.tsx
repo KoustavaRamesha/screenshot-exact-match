@@ -1,16 +1,13 @@
-import type * as React from "react";
 import { useEffect, useRef, useState } from "react";
 import { projects, type Project } from "./data";
 
 /**
  * Project showcase, Apple product-page style: generous whitespace, neutral type,
  * one large "app window" per project revealed on scroll, specs set like a keynote
- * slide. Color lives only in a soft per-project glow behind the artwork. Case
- * studies expand FLIP-style from the artwork; Esc or drag-down closes.
+ * slide. Color lives only in a soft per-project glow behind the artwork.
+ * Clicking a card opens the live project in a new tab.
  */
 export function Projects() {
-  const [open, setOpen] = useState<{ p: Project; rect: DOMRect } | null>(null);
-
   return (
     <section id="work" className="relative px-6 py-40">
       <div className="mx-auto max-w-6xl">
@@ -25,11 +22,10 @@ export function Projects() {
 
         <div className="space-y-48">
           {projects.map((p, i) => (
-            <Showcase key={p.id} project={p} index={i} onOpen={(rect) => setOpen({ p, rect })} />
+            <Showcase key={p.id} project={p} index={i} />
           ))}
         </div>
       </div>
-      {open && <CaseStudy project={open.p} from={open.rect} onClose={() => setOpen(null)} />}
     </section>
   );
 }
@@ -56,9 +52,9 @@ function useReveal<T extends HTMLElement>() {
   return { ref, on };
 }
 
-function Showcase({ project, index, onOpen }: { project: Project; index: number; onOpen: (r: DOMRect) => void }) {
+function Showcase({ project, index }: { project: Project; index: number }) {
   const { ref, on } = useReveal<HTMLElement>();
-  const art = useRef<HTMLButtonElement>(null);
+  const art = useRef<HTMLAnchorElement>(null);
   const [t, setT] = useState({ rx: 0, ry: 0, gx: 50, gy: 50, on: false });
   const flip = index % 2 === 1;
 
@@ -70,18 +66,20 @@ function Showcase({ project, index, onOpen }: { project: Project; index: number;
 
   return (
     <article ref={ref} className="grid items-center gap-12 md:grid-cols-2 md:gap-20">
-      {/* Artwork */}
+      {/* Artwork - clicking opens live project */}
       <div className={`relative ${flip ? "md:order-2" : ""}`} style={rise(0)}>
         <div
           aria-hidden
           className="absolute left-1/2 top-1/2 h-[60%] w-[75%] -translate-x-1/2 -translate-y-1/2 rounded-full opacity-30 blur-[90px]"
           style={{ background: project.hue }}
         />
-        <button
+        <a
           ref={art}
-          data-cursor="View"
-          aria-label={`Open ${project.name} case study`}
-          onClick={() => onOpen(art.current!.getBoundingClientRect())}
+          href={project.live || "#"}
+          target="_blank"
+          rel="noopener noreferrer"
+          data-cursor="Open ↗"
+          aria-label={`Open ${project.name} live site`}
           onPointerMove={(e) => {
             const r = art.current!.getBoundingClientRect();
             const x = (e.clientX - r.left) / r.width;
@@ -89,7 +87,7 @@ function Showcase({ project, index, onOpen }: { project: Project; index: number;
             setT({ rx: (0.5 - y) * 7, ry: (x - 0.5) * 7, gx: x * 100, gy: y * 100, on: true });
           }}
           onPointerLeave={() => setT({ rx: 0, ry: 0, gx: 50, gy: 50, on: false })}
-          className="relative block aspect-[16/10] w-full overflow-hidden rounded-[28px] border border-hairline bg-card text-left transition-all duration-700 ease-spring"
+          className="group relative block aspect-[16/10] w-full overflow-hidden rounded-[28px] border border-hairline bg-card text-left transition-all duration-700 ease-spring hover:border-foreground/30 hover:scale-[1.01]"
           style={{
             transform: `perspective(1200px) rotateX(${t.rx}deg) rotateY(${t.ry}deg) translateY(${t.on ? -8 : 0}px)`,
             boxShadow: "var(--shadow-soft)",
@@ -102,8 +100,9 @@ function Showcase({ project, index, onOpen }: { project: Project; index: number;
                   <span key={i} className="h-2 w-2 rounded-full bg-foreground/25" />
                 ))}
               </span>
-              <span className="mx-auto rounded-full bg-secondary/70 px-3 py-0.5 text-[10px] text-muted-foreground">
+              <span className="mx-auto flex items-center gap-1 rounded-full bg-secondary/70 px-3 py-0.5 text-[10px] text-muted-foreground transition-colors group-hover:text-foreground">
                 {project.name}
+                <span className="text-[9px] opacity-70">↗</span>
               </span>
               <span className="w-10" />
             </div>
@@ -113,7 +112,7 @@ function Showcase({ project, index, onOpen }: { project: Project; index: number;
             className="pointer-events-none absolute inset-0 transition-opacity duration-300"
             style={{ opacity: t.on ? 1 : 0, background: `radial-gradient(600px circle at ${t.gx}% ${t.gy}%, oklch(1 0 0 / 12%), transparent 45%)` }}
           />
-        </button>
+        </a>
       </div>
 
       {/* Copy */}
@@ -145,13 +144,14 @@ function Showcase({ project, index, onOpen }: { project: Project; index: number;
           ))}
         </div>
         <div className="mt-10 flex flex-wrap items-center gap-x-8 gap-y-3" style={rise(380)}>
-          <button onClick={() => onOpen(art.current!.getBoundingClientRect())} className="group inline-flex items-center gap-2 text-sm font-semibold">
-            Read case study
-            <span className="transition-transform duration-500 ease-spring group-hover:translate-x-1">→</span>
-          </button>
           {project.live && (
-            <a href={project.live} target="_blank" rel="noreferrer" className="group inline-flex items-center gap-1.5 text-sm font-semibold text-muted-foreground transition-colors hover:text-foreground">
-              Visit live site
+            <a
+              href={project.live}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group inline-flex items-center gap-2 text-sm font-semibold text-foreground transition-all duration-300 hover:text-primary"
+            >
+              <span>{project.id === "safety" ? "View source & demo" : "Visit live site"}</span>
               <span className="text-xs transition-transform duration-500 ease-spring group-hover:-translate-y-0.5 group-hover:translate-x-0.5">↗</span>
             </a>
           )}
@@ -224,93 +224,6 @@ function Art({ project }: { project: Project }) {
           {[40, 65, 50, 80, 60, 90, 70, 55].map((h, i) => (
             <div key={i} className="flex-1 rounded-sm bg-foreground/25" style={{ height: `${h}%` }} />
           ))}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-/** FLIP-style expand from the clicked artwork to full screen. Esc or drag down closes. */
-function CaseStudy({ project, from, onClose }: { project: Project; from: DOMRect; onClose: () => void }) {
-  const [expanded, setExpanded] = useState(false);
-  const [dragY, setDragY] = useState(0);
-  const start = useRef<number | null>(null);
-
-  const close = () => {
-    setExpanded(false);
-    setTimeout(onClose, 600);
-  };
-  useEffect(() => {
-    requestAnimationFrame(() => requestAnimationFrame(() => setExpanded(true)));
-    const k = (e: KeyboardEvent) => e.key === "Escape" && close();
-    addEventListener("keydown", k);
-    document.body.style.overflow = "hidden";
-    return () => {
-      removeEventListener("keydown", k);
-      document.body.style.overflow = "";
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  const style: React.CSSProperties = expanded
-    ? { top: dragY, left: 0, width: "100vw", height: "100vh", borderRadius: dragY ? 40 : 0 }
-    : { top: from.top, left: from.left, width: from.width, height: from.height, borderRadius: 36 };
-
-  return (
-    <div className="fixed inset-0 z-[150]" role="dialog" aria-modal="true" aria-label={project.name}>
-      <div className="absolute inset-0 bg-background/70 backdrop-blur-md transition-opacity duration-500" style={{ opacity: expanded ? 1 : 0 }} onClick={close} />
-      <div
-        className="absolute overflow-y-auto bg-card"
-        style={{ ...style, transition: start.current !== null ? "none" : "all 650ms var(--ease-spring)" }}
-      >
-        <div
-          className="relative flex h-[55vh] touch-none flex-col items-start justify-end bg-secondary p-8 md:p-16"
-          onPointerDown={(e) => (start.current = e.clientY)}
-          onPointerMove={(e) => start.current !== null && setDragY(Math.max(0, e.clientY - start.current))}
-          onPointerUp={() => {
-            if (dragY > 140) close();
-            start.current = null;
-            setDragY(0);
-          }}
-        >
-          <span className="absolute left-1/2 top-3 h-1.5 w-12 -translate-x-1/2 rounded-full bg-foreground/40" aria-hidden />
-          <button onClick={close} aria-label="Close" className="glass absolute right-6 top-6 h-11 w-11 rounded-full text-xl">
-            ×
-          </button>
-          <div className="transition-all delay-200 duration-700 ease-spring" style={{ opacity: expanded ? 1 : 0, transform: expanded ? "none" : "translateY(30px)" }}>
-            <p className="eyebrow mb-3">Case study</p>
-            <h2 className="headline">{project.name}</h2>
-          </div>
-        </div>
-        <div className="mx-auto max-w-3xl px-8 py-16 transition-opacity delay-300 duration-700" style={{ opacity: expanded ? 1 : 0 }}>
-          <p className="mb-12 text-3xl font-semibold tracking-tight">{project.tagline}</p>
-          {project.live && (
-            <a href={project.live} target="_blank" rel="noreferrer" className="mb-12 inline-flex items-center gap-2 rounded-full border border-hairline bg-secondary/60 px-6 py-3 text-sm font-semibold transition-transform duration-500 ease-spring hover:scale-[1.03]">
-              Open the live site ↗
-            </a>
-          )}
-          <div className="mb-12 grid grid-cols-3 gap-6">
-            {project.stats.map((s) => (
-              <div key={s.k} className="rounded-3xl border border-hairline bg-secondary/60 p-5">
-                <p className="text-2xl font-semibold tracking-tight">{s.v}</p>
-                <p className="mt-1 text-sm text-muted-foreground">{s.k}</p>
-              </div>
-            ))}
-          </div>
-          <ul className="space-y-6">
-            {project.points.map((pt) => (
-              <li key={pt} className="border-t border-hairline pt-6 text-lg text-muted-foreground">
-                {pt}
-              </li>
-            ))}
-          </ul>
-          <div className="mt-12 flex flex-wrap gap-2">
-            {project.tech.map((tech) => (
-              <span key={tech} className="rounded-full bg-secondary px-4 py-1.5 text-sm">
-                {tech}
-              </span>
-            ))}
-          </div>
         </div>
       </div>
     </div>

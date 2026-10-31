@@ -68,6 +68,7 @@ export const projects: Project[] = [
     tagline: "Every camera, watching for hazards. Live.",
     tech: ["Python", "PySide6", "YOLO", "ByteTrack", "OpenCV", "SQLite"],
     hue: "oklch(0.2 0.008 60)",
+    live: "https://github.com/KoustavaRamesha/surveillance-system",
     stats: [{ k: "detections", v: "Helmet · Fire · Smoke" }, { k: "model loads", v: "1×" }, { k: "alerts", v: "SMS" }],
     points: [
       "Multi-camera (USB/IP) desktop app running live YOLO detection with ByteTrack tracking for industrial safety monitoring.",
