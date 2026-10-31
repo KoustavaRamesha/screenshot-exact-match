@@ -6,6 +6,9 @@ import { Story } from "./components/portfolio/Story";
 import { Projects } from "./components/portfolio/Projects";
 import { Island } from "./components/portfolio/Island";
 import { Contact, confetti } from "./components/portfolio/Contact";
+import { startSmoothScroll, stopSmoothScroll, smoothScrollTo } from "./lib/smooth";
+import GhostCursor from "./components/ui/GhostCursor";
+import ColorBends from "./components/ui/ColorBends";
 
 const KONAMI = ["ArrowUp", "ArrowUp", "ArrowDown", "ArrowDown", "ArrowLeft", "ArrowRight", "ArrowLeft", "ArrowRight", "b", "a"];
 
@@ -14,16 +17,18 @@ export default function App() {
   const clicks = useRef(0);
 
   useEffect(() => {
-    document.title = "Koustava Ramesha — AI Orchestrator";
+    document.title = "Koustava Ramesha";
+    startSmoothScroll();
     let seen = false;
     try { seen = sessionStorage.getItem("kr-seen") === "1" || localStorage.getItem("kr-seen") === "1"; } catch { /* ignore */ }
     setStage(seen ? "site" : "welcome");
+    return stopSmoothScroll;
   }, []);
 
   const enter = () => {
     try { localStorage.setItem("kr-seen", "1"); } catch { /* ignore */ }
     setStage("site");
-    scrollTo({ top: 0 });
+    smoothScrollTo(0);
   };
 
   const surprise = () => { confetti(); document.documentElement.classList.toggle("theme-surprise"); };
@@ -45,9 +50,52 @@ export default function App() {
 
   return (
     <>
+      {/* Site-wide ColorBends background */}
+      <div aria-hidden className="pointer-events-none fixed inset-0 z-0">
+        <ColorBends
+          colors={["#bea212"]}
+          rotation={-38}
+          speed={0.66}
+          scale={1}
+          frequency={1}
+          warpStrength={1}
+          mouseInfluence={1}
+          noise={1}
+          parallax={2}
+          iterations={1}
+          intensity={2}
+          bandWidth={3}
+          transparent
+          autoRotate={2}
+        />
+      </div>
+
+      {/* Site-wide ghost cursor trail */}
+      <div aria-hidden className="pointer-events-none fixed inset-0 z-[1]">
+        <GhostCursor
+          color="#B497CF"
+          size={80}
+          trailLength={50}
+          inertia={0.5}
+          turbulence={0.5}
+          drift={0.3}
+          bloomStrength={0.6}
+          grainIntensity={0.05}
+          detail={1}
+          brightness={1}
+          bloomRadius={1}
+          edgeIntensity={0}
+          fadeDelayMs={1000}
+          fadeDurationMs={1500}
+          clickPuff
+          intro
+          zIndex={0}
+        />
+      </div>
+
       <Cursor />
       {stage === "welcome" && <Welcome onEnter={enter} />}
-      <main className="relative transition-all duration-1000 ease-spring" style={{ opacity: stage === "site" ? 1 : 0, transform: stage === "site" ? "none" : "scale(0.92)" }}>
+      <main className="relative z-[2] transition-all duration-1000 ease-spring" style={{ opacity: stage === "site" ? 1 : 0, transform: stage === "site" ? "none" : "scale(0.92)" }}>
         <Backdrop />
         <Island onLogo={onLogo} />
         <Hero />

@@ -50,17 +50,18 @@ export function Hero() {
         </div>
 
         {/* Title */}
-        <div className="relative transition-opacity duration-300" style={{ opacity: 1 - intro, transform: `translateY(${-intro * 40}px) scale(${1 - intro * 0.06})` }}>
+        <div className="relative z-10 transition-opacity duration-300" style={{ opacity: 1 - intro, transform: `translateY(${-intro * 40}px) scale(${1 - intro * 0.06})` }}>
           <h1 className="text-6xl font-semibold tracking-[-0.045em] md:text-8xl lg:text-[124px] lg:leading-none">
             {profile.first}.
           </h1>
           <p className="mx-auto mt-6 max-w-md text-lg text-foreground/85 md:text-xl">
-            Tell me the idea. I'll make it real.
+            Software engineer
           </p>
+
         </div>
 
         {/* Scroll-scrubbed words */}
-        <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+        <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center">
           {LINES.map((w, i) => {
             const start = 0.22 + i * 0.25;
             const local = (p - start) / 0.25;

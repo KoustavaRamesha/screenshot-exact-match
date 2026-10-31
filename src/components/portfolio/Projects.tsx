@@ -107,7 +107,7 @@ function Showcase({ project, index, onOpen }: { project: Project; index: number;
               </span>
               <span className="w-10" />
             </div>
-            <Art id={project.id} />
+            <Art project={project} />
           </div>
           <div
             className="pointer-events-none absolute inset-0 transition-opacity duration-300"
@@ -144,17 +144,29 @@ function Showcase({ project, index, onOpen }: { project: Project; index: number;
             </span>
           ))}
         </div>
-        <button onClick={() => onOpen(art.current!.getBoundingClientRect())} className="group mt-10 inline-flex items-center gap-2 text-sm font-semibold" style={rise(380)}>
-          Read case study
-          <span className="transition-transform duration-500 ease-spring group-hover:translate-x-1">→</span>
-        </button>
+        <div className="mt-10 flex flex-wrap items-center gap-x-8 gap-y-3" style={rise(380)}>
+          <button onClick={() => onOpen(art.current!.getBoundingClientRect())} className="group inline-flex items-center gap-2 text-sm font-semibold">
+            Read case study
+            <span className="transition-transform duration-500 ease-spring group-hover:translate-x-1">→</span>
+          </button>
+          {project.live && (
+            <a href={project.live} target="_blank" rel="noreferrer" className="group inline-flex items-center gap-1.5 text-sm font-semibold text-muted-foreground transition-colors hover:text-foreground">
+              Visit live site
+              <span className="text-xs transition-transform duration-500 ease-spring group-hover:-translate-y-0.5 group-hover:translate-x-0.5">↗</span>
+            </a>
+          )}
+        </div>
       </div>
     </article>
   );
 }
 
-/** Minimal CSS-art inside each project's window — distinct per product. */
-function Art({ id }: { id: string }) {
+/** Real screenshot when available, else minimal CSS-art inside each project's window. */
+function Art({ project }: { project: Project }) {
+  if (project.shot) {
+    return <img src={project.shot} alt={`${project.name} — live site`} className="h-full w-full object-cover object-top" loading="lazy" draggable={false} />;
+  }
+  const id = project.id;
   if (id === "safety") {
     return (
       <div className="grid flex-1 grid-cols-2 gap-2 p-3">
@@ -272,6 +284,11 @@ function CaseStudy({ project, from, onClose }: { project: Project; from: DOMRect
         </div>
         <div className="mx-auto max-w-3xl px-8 py-16 transition-opacity delay-300 duration-700" style={{ opacity: expanded ? 1 : 0 }}>
           <p className="mb-12 text-3xl font-semibold tracking-tight">{project.tagline}</p>
+          {project.live && (
+            <a href={project.live} target="_blank" rel="noreferrer" className="mb-12 inline-flex items-center gap-2 rounded-full border border-hairline bg-secondary/60 px-6 py-3 text-sm font-semibold transition-transform duration-500 ease-spring hover:scale-[1.03]">
+              Open the live site ↗
+            </a>
+          )}
           <div className="mb-12 grid grid-cols-3 gap-6">
             {project.stats.map((s) => (
               <div key={s.k} className="rounded-3xl border border-hairline bg-secondary/60 p-5">

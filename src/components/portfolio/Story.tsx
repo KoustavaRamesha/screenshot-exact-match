@@ -1,6 +1,7 @@
 import type * as React from "react";
 import { useEffect, useRef, useState } from "react";
 import { profile, skillGroups, timeline } from "./data";
+import { smoothScrollTo } from "../../lib/smooth";
 
 const CHAPTERS = ["About", "Toolkit", "Journey", "Work"];
 
@@ -40,7 +41,7 @@ export function Story() {
 
   const goTo = (i: number) => {
     const el = wrap.current!; const total = el.offsetHeight - innerHeight;
-    scrollTo({ top: el.offsetTop + (total * i) / (CHAPTERS.length - 1), behavior: "smooth" });
+    smoothScrollTo(el.offsetTop + (total * i) / (CHAPTERS.length - 1));
   };
 
   // keyboard arrows jump between chapters while the stage is pinned
@@ -74,6 +75,13 @@ export function Story() {
   return (
     <section id="story" ref={wrap} style={{ height: `${n * 100}vh` }} className="relative">
       <div className="sticky top-0 h-screen overflow-hidden">
+        {/* feather — fades sliding panels out before they reach the chapter rail */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-y-0 left-0 z-[5] hidden w-[17rem] xl:block"
+          style={{ background: "linear-gradient(90deg, hsl(var(--background)) 0%, hsl(var(--background) / 0.85) 40%, transparent 92%)" }}
+        />
+
         {/* left rail — chapter index */}
         <div className="absolute left-10 top-1/2 z-10 hidden -translate-y-1/2 flex-col gap-7 xl:flex" aria-label="Chapters">
           {CHAPTERS.map((c, i) => (

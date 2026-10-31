@@ -60,6 +60,14 @@
   }
 
   * { border-color: hsl(var(--border)); }
+  html {
+    scroll-behavior: smooth;
+  }
+  /* Lenis smooth-scroll engine: neutralize native smoothing and sizing rules */
+  html.lenis, html.lenis body { height: auto; }
+  .lenis.lenis-smooth { scroll-behavior: auto !important; }
+  .lenis.lenis-smooth [data-lenis-prevent] { overscroll-behavior: contain; }
+  .lenis.lenis-stopped { overflow: hidden; }
   body {
     background-color: hsl(var(--background));
     color: hsl(var(--foreground));
@@ -111,8 +119,9 @@
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; }
+  html { scroll-behavior: auto !important; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .island-motion { transition-duration: 1000ms !important; animation-duration: 500ms !important; }
+  .island-motion { transition-duration: 550ms !important; animation-duration: 300ms !important; }
 }

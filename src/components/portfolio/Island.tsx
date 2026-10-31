@@ -51,17 +51,17 @@ export function Island({ onLogo }: { onLogo: () => void }) {
     <div className="fixed left-1/2 top-4 z-[90] -translate-x-1/2" onPointerEnter={(e) => { if (e.pointerType === "mouse") setOpen(true); }} onPointerLeave={(e) => { if (e.pointerType === "mouse") setOpen(false); }}>
       <div
         className="island-motion overflow-hidden rounded-[28px]"
-        style={{ transition: "width 1000ms cubic-bezier(0.45,0,0.2,1), height 1000ms cubic-bezier(0.45,0,0.2,1)", width: open ? "min(380px, 92vw)" : 210, height: open ? 176 : 40, boxShadow: "var(--shadow-soft)", background: "oklch(0.08 0 0)", color: "oklch(0.97 0 0)" }}
+        style={{ transition: "width 550ms cubic-bezier(0.32, 0.72, 0, 1), height 550ms cubic-bezier(0.32, 0.72, 0, 1)", width: open ? "min(380px, 92vw)" : 210, height: open ? 176 : 40, boxShadow: "var(--shadow-soft)", background: "oklch(0.08 0 0)", color: "oklch(0.97 0 0)" }}
       >
         {!open ? (
-          <div className="island-motion flex h-10 items-center justify-between px-4 text-sm animate-in fade-in duration-500">
+          <div className="island-motion flex h-10 items-center justify-between px-4 text-sm animate-in fade-in duration-300">
             <button onClick={onLogo} aria-label="Logo" className="font-semibold tracking-tight">KR</button>
             <button onClick={() => setOpen(true)} className="flex items-center gap-2 text-xs opacity-80" aria-expanded={false} aria-label="Open dynamic island">
               {playing ? <Bars /> : <span className="h-2 w-2 rounded-full bg-foreground/70" />} {running ? fmt(secs) : "Open"}
             </button>
           </div>
         ) : (
-          <div className="island-motion flex h-full min-w-[300px] flex-col p-4 animate-in fade-in duration-500 delay-150 fill-mode-both">
+          <div className="island-motion flex h-full min-w-[300px] flex-col p-4 animate-in fade-in duration-300 delay-100 fill-mode-both">
             <div className="mb-3 flex items-center justify-between">
               <div className="flex gap-1">
                 {(["music", "timer", "contact"] as Mode[]).map((m) => (
@@ -70,7 +70,7 @@ export function Island({ onLogo }: { onLogo: () => void }) {
               </div>
               <button onClick={() => setOpen(false)} aria-label="Collapse" className="text-lg opacity-70">×</button>
             </div>
-            <div key={mode} className="island-motion flex flex-1 items-center animate-in fade-in zoom-in-95 duration-500">
+            <div key={mode} className="island-motion flex flex-1 items-center animate-in fade-in zoom-in-95 duration-300">
               {mode === "music" && (
                 <div className="flex w-full items-center gap-3">
                   <div className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-secondary/80 text-2xl ${playing ? "animate-wobble" : ""}`}>♪</div>
@@ -93,7 +93,16 @@ export function Island({ onLogo }: { onLogo: () => void }) {
                 </div>
               )}
               {mode === "contact" && (
-                <div className="w-full"><p className="text-xs opacity-60">Say hi</p><a href={`mailto:${profile.email}`} className="text-xl font-semibold">{profile.email}</a><p className="mt-1 text-xs opacity-60">{profile.location}</p></div>
+                <div className="w-full">
+                  <p className="text-xs opacity-60">Say hi</p>
+                  <a href={`mailto:${profile.email}`} className="text-xl font-semibold">{profile.email}</a>
+                  <div className="mt-1 flex items-center justify-between text-xs opacity-70">
+                    <span>{profile.location}</span>
+                    <a href="/resume.pdf" target="_blank" rel="noopener noreferrer" className="underline hover:opacity-100">
+                      Résumé ↗
+                    </a>
+                  </div>
+                </div>
               )}
             </div>
           </div>
